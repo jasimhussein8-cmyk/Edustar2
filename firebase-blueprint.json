@@ -1,0 +1,131 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "System user with specific role and profile data.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "teacher", "student", "parent"] },
+        "studentId": { "type": "string", "description": "Linked student UID for parents" },
+        "teacherId": { "type": "string", "description": "Linked teacher UID for students" },
+        "classId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "name", "email", "role"]
+    },
+    "Class": {
+      "title": "Class",
+      "description": "A school class or section.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "teacherId": { "type": "string" },
+        "schedule": { "type": "object" }
+      },
+      "required": ["id", "name", "teacherId"]
+    },
+    "Attendance": {
+      "title": "Attendance",
+      "description": "Record of student attendance.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "studentId": { "type": "string" },
+        "classId": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "status": { "type": "string", "enum": ["present", "absent", "late"] },
+        "method": { "type": "string", "enum": ["fingerprint", "manual"] },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["studentId", "classId", "date", "status"]
+    },
+    "Grade": {
+      "title": "Grade",
+      "description": "Student academic performance record.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "studentId": { "type": "string" },
+        "teacherId": { "type": "string" },
+        "subject": { "type": "string" },
+        "score": { "type": "number" },
+        "total": { "type": "number" },
+        "comments": { "type": "string" },
+        "date": { "type": "string", "format": "date" }
+      },
+      "required": ["studentId", "subject", "score"]
+    },
+    "Assignment": {
+      "title": "Assignment",
+      "description": "Task assigned to students.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "classId": { "type": "string" },
+        "teacherId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "dueDate": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["classId", "teacherId", "title", "dueDate"]
+    },
+    "Submission": {
+      "title": "Submission",
+      "description": "Student submission for an assignment.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "assignmentId": { "type": "string" },
+        "studentId": { "type": "string" },
+        "content": { "type": "string" },
+        "submittedAt": { "type": "string", "format": "date-time" },
+        "grade": { "type": "number" },
+        "feedback": { "type": "string" }
+      },
+      "required": ["assignmentId", "studentId", "content"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "System or user-generated alert.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "recipientId": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "read": { "type": "boolean" }
+      },
+      "required": ["recipientId", "title", "message"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Direct message between users.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "senderId": { "type": "string" },
+        "receiverId": { "type": "string" },
+        "content": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["senderId", "receiverId", "content"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": { "schema": "User", "description": "User profiles" },
+    "/classes/{classId}": { "schema": "Class", "description": "School classes" },
+    "/attendance/{attendanceId}": { "schema": "Attendance", "description": "Attendance logs" },
+    "/grades/{gradeId}": { "schema": "Grade", "description": "Student grades" },
+    "/assignments/{assignmentId}": { "schema": "Assignment", "description": "Assignments" },
+    "/submissions/{submissionId}": { "schema": "Submission", "description": "Assignment submissions" },
+    "/notifications/{notificationId}": { "schema": "Notification", "description": "User notifications" },
+    "/messages/{messageId}": { "schema": "Message", "description": "Direct messages" }
+  }
+}
