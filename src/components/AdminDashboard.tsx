@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { collection, getDocs, deleteDoc, doc, setDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import { UserProfile, Material, UserRole } from '../types';
 import { Users, Trash2, Search, Plus, X, UserPlus, GraduationCap, UserCheck } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
@@ -28,6 +28,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!auth.currentUser) return;
       try {
         const usersSnap = await getDocs(collection(db, 'users'));
         const materialsSnap = await getDocs(collection(db, 'materials'));

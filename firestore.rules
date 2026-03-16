@@ -19,7 +19,11 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return hasRole('admin') || (request.auth.token.email == "jasimhussein8@gmail.com" && request.auth.token.email_verified == true);
+      return isAuthenticated() && (
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
+        request.auth.token.email == "jasimhussein8@gmail.com"
+      );
     }
 
     // Users
@@ -27,7 +31,7 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated() && (request.auth.uid == uid || isAdmin());
       allow update: if isAuthenticated() && (request.auth.uid == uid || isAdmin()) && 
-                    (request.resource.data.role == resource.data.role || isAdmin());
+                    (request.resource.data.role == resource.data.role || resource.data.isProfileComplete == false || isAdmin());
       allow delete: if isAdmin();
     }
 

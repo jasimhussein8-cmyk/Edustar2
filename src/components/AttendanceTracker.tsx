@@ -14,6 +14,7 @@ export default function AttendanceTracker() {
   const [lastScannedUser, setLastScannedUser] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!auth.currentUser) return;
     const q = query(collection(db, 'attendance'), orderBy('timestamp', 'desc'));
     const unsubscribe = onSnapshot(q, (snap) => {
       setLogs(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Attendance)));
@@ -32,15 +33,30 @@ export default function AttendanceTracker() {
     
     if (success) {
       const mockStudentId = 'student-' + Math.floor(Math.random() * 1000);
+      const status = Math.random() > 0.2 ? 'present' : 'absent'; // Simulate some absences
       try {
         await addDoc(collection(db, 'attendance'), {
           studentId: mockStudentId,
           classId: 'class-101',
           date: new Date().toISOString().split('T')[0],
-          status: 'present',
+          status,
           method: 'fingerprint',
           timestamp: new Date().toISOString()
         });
+
+        if (status === 'absent') {
+          await addDoc(collection(db, 'notifications'), {
+            recipientId: mockStudentId,
+            title: isRTL ? 'تنبيه غياب' : 'Absence Alert',
+            message: isRTL 
+              ? 'لقد تم تسجيلك كغائب عبر نظام البصمة. يرجى مراجعة الإدارة.' 
+              : 'You have been marked as absent via the biometric system. Please check with the administration.',
+            type: 'attendance',
+            createdAt: new Date().toISOString(),
+            read: false
+          });
+        }
+
         setScanStatus('success');
         setLastScannedUser(mockStudentId);
       } catch (error) {

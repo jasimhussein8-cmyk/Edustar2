@@ -88,6 +88,20 @@ export default function TeacherDashboard() {
         method: 'manual',
         timestamp: new Date().toISOString()
       });
+
+      // If absent, send notification to student
+      if (status === 'absent') {
+        await addDoc(collection(db, 'notifications'), {
+          recipientId: studentId,
+          title: isRTL ? 'تنبيه غياب' : 'Absence Alert',
+          message: isRTL 
+            ? 'لقد تم تسجيلك كغائب لهذا اليوم. يرجى مراجعة الإدارة.' 
+            : 'You have been marked as absent for today. Please check with the administration.',
+          type: 'attendance',
+          createdAt: new Date().toISOString(),
+          read: false
+        });
+      }
     } catch (error) {
       console.error(error);
     }

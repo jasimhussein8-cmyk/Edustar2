@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import { Attendance, Grade, Notification } from '../types';
 import { Bell, UserCheck, GraduationCap, MessageSquare, Clock, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -14,6 +14,7 @@ export default function ParentDashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!auth.currentUser) return;
       // In a real app, we'd filter by the linked studentId
       const attendanceSnap = await getDocs(query(collection(db, 'attendance'), orderBy('timestamp', 'desc'), limit(5)));
       const gradesSnap = await getDocs(query(collection(db, 'grades'), orderBy('date', 'desc'), limit(5)));

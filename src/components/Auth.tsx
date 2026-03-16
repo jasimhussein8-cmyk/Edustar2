@@ -33,34 +33,35 @@ export default function Auth() {
     setError('');
     try {
       if (mode === 'login') {
-        await signInWithEmailAndPassword(auth, email, password);
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+        } catch (loginErr: any) {
+          // If login fails with invalid-credential, we check if it's a new user from Admin panel
+          if (loginErr.code === 'auth/invalid-credential' || loginErr.code === 'auth/user-not-found') {
+            throw loginErr;
+          }
+          throw loginErr;
+        }
       } else {
         await createUserWithEmailAndPassword(auth, email, password);
       }
     } catch (err: any) {
       console.error('Auth Error:', err.code);
-      switch (err.code) {
-        case 'auth/invalid-credential':
-          setError(isRTL ? 'بيانات الدخول غير صحيحة. تأكد من البريد وكلمة السر.' : 'Invalid credentials. Please check your email and password.');
-          break;
-        case 'auth/user-not-found':
-          setError(isRTL ? 'هذا الحساب غير موجود.' : 'User not found.');
-          break;
-        case 'auth/wrong-password':
-          setError(isRTL ? 'كلمة المرور خاطئة.' : 'Wrong password.');
-          break;
-        case 'auth/email-already-in-use':
-          setError(isRTL ? 'هذا البريد الإلكتروني مستخدم بالفعل.' : 'Email already in use.');
-          break;
-        case 'auth/weak-password':
-          setError(isRTL ? 'كلمة المرور ضعيفة جداً.' : 'Password is too weak.');
-          break;
-        case 'auth/operation-not-allowed':
-          setError(isRTL ? 'تسجيل الدخول بالبريد غير مفعل في Firebase Console.' : 'Email/Password auth is not enabled in Firebase Console.');
-          break;
-        default:
-          setError(err.message);
+      let message = err.message;
+      
+      if (err.code === 'auth/invalid-credential') {
+        message = isRTL 
+          ? 'بيانات الدخول غير صحيحة. إذا كنت مستخدماً جديداً أضافه المسؤول، يرجى استخدام خيار "إنشاء حساب" بنفس البريد أولاً.' 
+          : 'Invalid credentials. If you were added by an admin, please use "Sign Up" with the same email first to activate your account.';
+      } else if (err.code === 'auth/operation-not-allowed') {
+        message = isRTL 
+          ? 'تسجيل الدخول بالبريد غير مفعل. يرجى تفعيل Email/Password في Firebase Console.' 
+          : 'Email/Password auth is not enabled. Please enable it in the Firebase Console.';
+      } else if (err.code === 'auth/email-already-in-use') {
+        message = isRTL ? 'هذا البريد الإلكتروني مستخدم بالفعل.' : 'Email already in use.';
       }
+      
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -81,8 +82,17 @@ export default function Auth() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full bg-white rounded-3xl shadow-xl shadow-stone-200/50 p-8 border border-stone-100"
+        className="max-w-md w-full bg-white rounded-3xl shadow-xl shadow-stone-200/50 p-8 border border-stone-100 relative"
       >
+        {mode === 'signup' && (
+          <button 
+            onClick={() => setMode('login')}
+            className={`absolute top-8 ${isRTL ? 'right-8' : 'left-8'} p-2 hover:bg-stone-100 rounded-xl text-stone-400 transition-colors`}
+          >
+            <ArrowLeft className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
+          </button>
+        )}
+
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 text-emerald-700 rounded-2xl mb-4">
             <GraduationCap className="w-10 h-10" />

@@ -19,6 +19,9 @@ import StudentDashboard from './components/StudentDashboard';
 import AttendanceTracker from './components/AttendanceTracker';
 import Messaging from './components/Messaging';
 import GradeManager from './components/GradeManager';
+import Timetable from './components/Timetable';
+import AssignmentManager from './components/AssignmentManager';
+import ClassManager from './components/ClassManager';
 
 export default function App() {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -93,8 +96,11 @@ export default function App() {
             }
           />
           <Route path="/attendance" element={<AttendanceTracker />} />
+          <Route path="/classes" element={<ClassManager />} />
           <Route path="/messages" element={<Messaging />} />
           <Route path="/grades" element={<GradeManager />} />
+          <Route path="/schedule" element={<Timetable user={user!} />} />
+          <Route path="/assignments" element={<AssignmentManager />} />
         </Route>
       </Routes>
     </Router>

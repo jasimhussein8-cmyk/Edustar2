@@ -80,6 +80,24 @@ export interface Submission {
   feedback?: string;
 }
 
+export interface TimetableEntry {
+  subject: string;
+  teacherId: string;
+  teacherName?: string;
+  room?: string;
+  startTime: string;
+  endTime: string;
+}
+
+export interface WeeklyTimetable {
+  id: string;
+  grade: string;
+  section: string;
+  schedule: {
+    [day: string]: TimetableEntry[];
+  };
+}
+
 export interface Notification {
   id: string;
   recipientId: string;

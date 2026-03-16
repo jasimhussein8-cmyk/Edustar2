@@ -21,6 +21,7 @@ export default function GradeManager() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!auth.currentUser) return;
       const studentsSnap = await getDocs(query(collection(db, 'users'), where('role', '==', 'student')));
       setStudents(studentsSnap.docs.map(doc => doc.data() as UserProfile));
       

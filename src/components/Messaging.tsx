@@ -16,6 +16,7 @@ export default function Messaging() {
 
   useEffect(() => {
     const fetchContacts = async () => {
+      if (!auth.currentUser) return;
       const q = query(collection(db, 'users'), limit(20));
       const snap = await onSnapshot(q, (s) => {
         setContacts(s.docs.map(doc => doc.data() as UserProfile).filter(u => u.uid !== auth.currentUser?.uid));
